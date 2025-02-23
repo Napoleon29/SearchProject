@@ -127,6 +127,8 @@ You must not prune on equality in order to match the set of states explored by o
 The pseudo-code below represents the algorithm you should implement for this question.
 
 Alpha-Beta Implementation
+![image](https://github.com/user-attachments/assets/b2818d93-b46e-4e05-a341-8ad0ba663fbc)
+
 To test and debug your code, run
 
 python autograder.py -q q3
