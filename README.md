@@ -174,5 +174,6 @@ python autograder.py -q q5
 To run it without graphics, use:
 
 python autograder.py -q q5 --no-graphics
-Submission
+
+# Submission
 In order to submit your project, please upload the following file to Project 2 on Gradescope: multiAgents.py. If you used your Project 1 code for Q5, include search.py and searchAgents.py in your submission. Please do not upload the files in a zip file or a directory as the autograder will not work if you do so.
