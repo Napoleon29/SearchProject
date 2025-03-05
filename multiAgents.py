@@ -89,11 +89,11 @@ class ReflexAgent(Agent):
             ghostPos = ghostState.getPosition()
             ghostDist = util.manhattanDistance(newPos, ghostPos)
 
-        if scaredTime > 0:
-            score += 200.0 / (1.0 + ghostDist)  # heavily incentivizes eating scared ghosts
-        else:
-            if ghostDist < 3:
-                score -= 200 / (1.0 + ghostDist)  # heavily incentivizes avoiding ghosts
+            if scaredTime > 0:
+                score += 200.0 / (1.0 + ghostDist)  # heavily incentivizes eating scared ghosts
+            else:
+                if ghostDist < 3:
+                    score -= 200 / (1.0 + ghostDist)  # heavily incentivizes avoiding ghosts
 
         return score  # returns score that considers closest food, ghost location, ghost status, and total food left
 
@@ -216,62 +216,58 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
-        # Not thoroughly tested yet....
+        def alphaBeta(state, depth, agentIndex, alpha, beta):
+            # Check for terminal state or if reached the maximum depth.
+            if depth == self.depth or state.isWin() or state.isLose():
+                return self.evaluationFunction(state)
 
-    """       def alphaBeta(state, depth, agentIndex, alpha, beta):
-         # Check for terminal state or if reached the maximum depth.
-         if depth == self.depth or state.isWin() or state.isLose():
-             return self.evaluationFunction(state)
+            numAgents = state.getNumAgents()
+            nextAgent = (agentIndex + 1) % numAgents
+            nextDepth = depth + 1 if nextAgent == 0 else depth
 
-         numAgents = state.getNumAgents()
-         nextAgent = (agentIndex + 1) % numAgents
-         nextDepth = depth + 1 if nextAgent == 0 else depth
+            legalActions = state.getLegalActions(agentIndex)
+            # If no legal actions, evaluate the state.
+            if not legalActions:
+                return self.evaluationFunction(state)
 
-         legalActions = state.getLegalActions(agentIndex)
-         # If no legal actions, evaluate the state.
-         if not legalActions:
-             return self.evaluationFunction(state)
+            # Pacman's turn: Maximizing player.
+            if agentIndex == 0:
+                value = float("-inf")
+                for action in legalActions:
+                    successor = state.generateSuccessor(agentIndex, action)
+                    value = max(value, alphaBeta(successor, nextDepth, nextAgent, alpha, beta))
+                    # Prune if value strictly exceeds beta.
+                    if value > beta:
+                        return value
+                    alpha = max(alpha, value)
+                return value
+            # Ghosts' turn: Minimizing players.
+            else:
+                value = float("inf")
+                for action in legalActions:
+                    successor = state.generateSuccessor(agentIndex, action)
+                    value = min(value, alphaBeta(successor, nextDepth, nextAgent, alpha, beta))
+                    # Prune if value is strictly less than alpha.
+                    if value < alpha:
+                        return value
+                    beta = min(beta, value)
+                return value
 
-         # Pacman's turn: Maximizing player.
-         if agentIndex == 0:
-             value = float("-inf")
-             for action in legalActions:
-                 successor = state.generateSuccessor(agentIndex, action)
-                 value = max(value, alphaBeta(successor, nextDepth, nextAgent, alpha, beta))
-                 # Prune if value strictly exceeds beta.
-                 if value > beta:
-                     return value
-                 alpha = max(alpha, value)
-             return value
-         # Ghosts' turn: Minimizing players.
-         else:
-             value = float("inf")
-             for action in legalActions:
-                 successor = state.generateSuccessor(agentIndex, action)
-                 value = min(value, alphaBeta(successor, nextDepth, nextAgent, alpha, beta))
-                 # Prune if value is strictly less than alpha.
-                 if value < alpha:
-                     return value
-                 beta = min(beta, value)
-             return value
+        # At the root (Pacman's turn), choose action with highest minimax value.
+        legalActions = gameState.getLegalActions(0)
+        bestAction = None
+        bestValue = float("-inf")
+        alpha = float("-inf")
+        beta = float("inf")
 
-     # At the root (Pacman's turn), choose action with highest minimax value.
-     legalActions = gameState.getLegalActions(0)
-     bestAction = None
-     bestValue = float("-inf")
-     alpha = float("-inf")
-     beta = float("inf")
-
-     for action in legalActions:
-         successor = gameState.generateSuccessor(0, action)
-         value = alphaBeta(successor, 0, 1, alpha, beta)
-         if value > bestValue:
-             bestValue = value
-             bestAction = action
-         alpha = max(alpha, bestValue)
-     return bestAction
-     util.raiseNotDefined()
-"""
+        for action in legalActions:
+            successor = gameState.generateSuccessor(0, action)
+            value = alphaBeta(successor, 0, 1, alpha, beta)
+            if value > bestValue:
+                bestValue = value
+                bestAction = action
+            alpha = max(alpha, bestValue)
+        return bestAction
 
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
@@ -330,6 +326,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 total += value
             # Return the average value
             return (total / len(legalActions),)
+
 
 def betterEvaluationFunction(currentGameState):
     """
